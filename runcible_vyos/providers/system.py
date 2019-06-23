@@ -10,7 +10,7 @@ class VyosSystemProvider(ProviderBase):
     ]
 
     def get_cstate(self):
-        hostname = self._get_hostname('hostname').strip()
+        hostname = self._get_hostname()
         return System({'hostname': hostname})
 
     def fix_needs(self):
@@ -18,10 +18,12 @@ class VyosSystemProvider(ProviderBase):
             if need.attribute is SystemResources.HOSTNAME:
                 if need.operation is Op.SET:
                     self._set_hostname(need.value)
-                    self.completed(need)
+                    self.complete(need)
 
     def _set_hostname(self, hostname):
         return self.device.send_command(f"set system host-name {hostname}")
 
     def _get_hostname(self):
-        return self.device.send_command("hostname")
+        lines = self.device.send_command("show system host-name")
+        hostname = lines[-5].strip().split(' ')[1]
+        return hostname
