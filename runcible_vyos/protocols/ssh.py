@@ -22,8 +22,15 @@ ansi_regex = r'\x1b(' \
 
 ansi_purge = re.compile(ansi_regex, flags=re.IGNORECASE)
 
-class VyosInteractiveSSH(TerminalProtocolBase):
 
+class VyosInteractiveSSH(TerminalProtocolBase):
+    """
+    The most important method to implement in this class is the "send_implement" method.
+    This is the method that send_command ends up calling in order to print things on the terminal.
+
+    Note that if the send command is called before the session is established, it returns a RuncibleNotConnected error
+    The device class will automatically call the "connect" method on this class any tiem that error is raised.
+    """
     def __init__(self, config: dict):
         super().__init__(config=config)
         self.client = paramiko.SSHClient()

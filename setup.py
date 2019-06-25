@@ -12,5 +12,6 @@ setuptools.setup(
         'runcible>=0.0.4'
     ],
     long_description=open('README.md').read(),
+    # This is what Runcible looks at to decide if this is a driver candidate or not
     entry_points={'runcible.drivers': 'vyos = runcible_vyos.driver:VyosDriver'}
 )
