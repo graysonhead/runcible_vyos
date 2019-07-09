@@ -19,19 +19,20 @@ class VyosInterfaceProvider(SubProviderBase):
 
     def _get_mtu(self, interface):
         result = self.device.send_command(f"show interfaces ethernet {interface} mtu")
-        if result[2] == 'Configuration under specified path is empty':
+        if result[1] == 'Configuration under specified path is empty':
             return 1500
         else:
-            return int(result[2].strip('mtu '))
+            return int(result[1].strip('mtu '))
 
     def _get_ipv4_address(self, interface):
         result = self.device.send_command(f"show interfaces ethernet {interface} address")
-        if result[2] == 'Configuration under specified path is empty':
+        if result[1] == 'Configuration under specified path is empty':
             return None
         else:
-            return result[2].strip('address ')
+            return result[1].strip('address ')
 
     def _set_ipv4_address(self, interface, address):
+        self.device.send_command(f"delete interface ethernet {interface} address")
         return self.device.send_command(f"set interfaces ethernet {interface} address {address}")
 
     def _clear_ipv4_address(self, interface):

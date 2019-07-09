@@ -47,7 +47,7 @@ class VyosSystemProvider(ProviderBase):
     def _get_hostname(self):
         lines = self.device.send_command("show system host-name")
         try:
-            hostname = lines[-5].strip().split(' ')[1]
+            hostname = lines[1].strip().split(' ')[1]
         except IndexError:
             return ''
         return hostname

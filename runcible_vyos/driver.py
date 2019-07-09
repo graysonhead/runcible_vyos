@@ -36,6 +36,13 @@ class VyosDriver(DriverBase):
     def pre_plan_tasks(device):
         # This puts the device terminal into a configure mode
         device.send_command('configure')
+        # Disable the pager so we can get the full output from long commands
+
+        device.send_command('unset VYATTA_PAGER')
+        # Store the raw text of the device configuration
+        raw_commands = device.send_command('show')
+        device.store('raw_commands', raw_commands)
+
 
     # This method gets run after device.exec() completes its task, but before callbacks are rendered
     @staticmethod
