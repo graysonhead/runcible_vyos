@@ -2,6 +2,7 @@ from runcible.drivers.driver import DriverBase
 from runcible_vyos.providers.system import VyosSystemProvider
 from runcible_vyos.providers.interfaces import VyosInterfacesProvider
 from runcible_vyos.protocols.ssh import VyosInteractiveSSH
+import vyattaconfparser
 
 
 class VyosDriver(DriverBase):
@@ -41,7 +42,16 @@ class VyosDriver(DriverBase):
         device.send_command('unset VYATTA_PAGER')
         # Store the raw text of the device configuration
         raw_commands = device.send_command('show')
-        device.store('raw_commands', raw_commands)
+        first_line_index = None
+        last_line_index = 0
+        for line in raw_commands:
+            if line.endswith('{') and not first_line_index:
+                first_line_index = raw_commands.index(line)
+            if line == ' }':
+                last_line_index = raw_commands.index(line, last_line_index + 1)
+        conf_dict = vyattaconfparser.parse_conf('\n'.join(raw_commands[first_line_index:last_line_index]))
+
+        device.store('configuration', conf_dict)
 
 
     # This method gets run after device.exec() completes its task, but before callbacks are rendered
