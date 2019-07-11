@@ -3,6 +3,13 @@ from runcible.providers.sub_provider import SubProviderBase
 from runcible.core.need import NeedOperation as Op
 
 
+# Map the values returned by the vyos parser to their respective values in the runcible interface
+attribute_map = {
+            "address": InterfaceResources.IPV4_ADDRESS,
+            "mtu": InterfaceResources.MTU
+        }
+
+
 class VyosInterfaceProvider(SubProviderBase):
     supported_attributes = [
         InterfaceResources.MTU,
@@ -10,11 +17,14 @@ class VyosInterfaceProvider(SubProviderBase):
     ]
 
     def get_cstate(self, interface: str):
-        config_dict = {'name': interface}
-        config_dict.update({InterfaceResources.MTU: self._get_mtu(interface)})
-        ipv4_address = self._get_ipv4_address(interface)
-        if ipv4_address:
-            config_dict.update({InterfaceResources.IPV4_ADDRESS: ipv4_address})
+        config = self.device.retrieve('configuration')
+        config_dict = {"name": interface}
+        if config.get("interfaces", None):
+            for key, value in config['interfaces'].items():
+                if config["interfaces"][key].get(interface, None):
+                    for key, attrvalue in value[interface].items():
+                        if key in attribute_map:
+                            config_dict.update({attribute_map[key]: attrvalue})
         return Interface(config_dict)
 
     def _get_mtu(self, interface):

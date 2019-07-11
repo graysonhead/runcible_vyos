@@ -38,9 +38,9 @@ class VyosDriver(DriverBase):
         # This puts the device terminal into a configure mode
         device.send_command('configure')
         # Disable the pager so we can get the full output from long commands
-
         device.send_command('unset VYATTA_PAGER')
-        # Store the raw text of the device configuration
+        # Get the full configuration, then parse it and store it in the device key/value store so providers can
+        # retrieve it
         raw_commands = device.send_command('show')
         first_line_index = None
         last_line_index = 0
@@ -50,9 +50,7 @@ class VyosDriver(DriverBase):
             if line == ' }':
                 last_line_index = raw_commands.index(line, last_line_index + 1)
         conf_dict = vyattaconfparser.parse_conf('\n'.join(raw_commands[first_line_index:last_line_index]))
-
         device.store('configuration', conf_dict)
-
 
     # This method gets run after device.exec() completes its task, but before callbacks are rendered
     @staticmethod

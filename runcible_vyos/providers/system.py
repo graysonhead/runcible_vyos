@@ -2,6 +2,11 @@ from runcible.modules.system import System, SystemResources
 from runcible.providers.provider import ProviderBase
 from runcible.core.need import NeedOperation as Op
 
+# Map the values returned by the vyos parser to their respective values in the runcible interface
+attribute_map = {
+    "host-name": SystemResources.HOSTNAME
+}
+
 
 class VyosSystemProvider(ProviderBase):
     """
@@ -14,7 +19,7 @@ class VyosSystemProvider(ProviderBase):
     # We also need to specify which attributes this module implements. If a user calls an un-implemented attribute
     # They will receive a warning.
     supported_attributes = [
-        'hostname'
+        SystemResources.HOSTNAME
     ]
 
     def get_cstate(self):
@@ -22,8 +27,13 @@ class VyosSystemProvider(ProviderBase):
         Gets the current state of all attributes in the module on the target device.
         :return:
         """
-        hostname = self._get_hostname()
-        return System({'hostname': hostname})
+        config_dict = {}
+        config = self.device.retrieve('configuration')
+        system_dict = config.get('system', {})
+        for key, value in system_dict.items():
+            if key in attribute_map:
+                config_dict.update({attribute_map[key]: value})
+        return System(config_dict)
 
     def fix_needs(self):
         """
