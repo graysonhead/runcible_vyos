@@ -29,7 +29,7 @@ class VyosInteractiveSSH(TerminalProtocolBase):
     This is the method that send_command ends up calling in order to print things on the terminal.
 
     Note that if the send command is called before the session is established, it returns a RuncibleNotConnected error
-    The device class will automatically call the "connect" method on this class any tiem that error is raised.
+    The device class will automatically call the "connect" method on this class any time that error is raised.
     """
     def __init__(self, config: dict):
         super().__init__(config=config)

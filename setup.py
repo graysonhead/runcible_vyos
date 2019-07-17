@@ -9,7 +9,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     license='GPL V3',
     install_requires=[
-        'runcible>=0.0.4',
+        'runcible>=0.0.6',
         'VyattaConfParser>=0.5.1'
 
     ],
